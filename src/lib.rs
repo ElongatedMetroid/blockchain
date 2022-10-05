@@ -1,8 +1,8 @@
 type BlockHash = Vec<u8>;
 
-// Credit: https://stackoverflow.com/a/44378174/2773837
 use std::time::{ SystemTime, UNIX_EPOCH };
 
+/// Returns the current time in milliseconds
 pub fn now () -> u128 {
     let duration = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -61,3 +61,5 @@ pub fn u128_bytes (u: &u128) -> [u8; 16] {
 
 mod block;
 pub use crate::block::Block;
+mod hashable;
+pub use crate::hashable::Hashable;
