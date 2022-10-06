@@ -1,12 +1,18 @@
 use blockchain::*;
 
 fn main() {
-    let mut block = Block::new(0, 0, Vec::new(), 0, String::from("AMONG US"));
+    let mut block = Block::new(
+        0, 
+        0, 
+        vec![0; 32],
+        0, 
+        String::from("Genesis block!"),
+        0x00000000ffffffffffffffffffffffff
+    );
 
     println!("{:?}", block);
 
-    let h = block.hash();
-    block.set_hash(h);
+    block.mine();   
 
     println!("{:?}", block);
 }
