@@ -1,43 +1,67 @@
+
 use blockchain::*;
 
-fn main() {
-    let difficulty: u128 = 0x0000ffffffffffffffffffffffffffff;
-    let mut block = Block::new(
-        0, 
-        now(), 
-        vec![0; 32],
-        0, 
-        String::from("Genesis block!"),
-        difficulty
-    );
+fn main () {
+    let difficulty = 0x000fffffffffffffffffffffffffffff;
 
-    block.mine();   
+    let mut genesis_block = Block::new(0, now(), vec![0; 32], vec![
+        Transaction {
+            inputs: vec![ ],
+            outputs: vec![
+                transaction::Output {
+                    to_addr: "Alice".to_owned(),
+                    value: 50,
+                },
+                transaction::Output {
+                    to_addr: "Bob".to_owned(),
+                    value: 7,
+                },
+            ],
+        },
+    ], difficulty);
 
-    println!("Mined genesis block {:?}", block);
+    genesis_block.mine();
 
-    let mut last_hash = block.hash.clone();
+    println!("Mined genesis block {:?}", &genesis_block);
 
-    let mut blockchain = Blockchain {
-        blocks: vec![block],
-    };
+    let mut last_hash = genesis_block.hash.clone();
 
-    for i in 1..=10 {
-        let mut block = Block::new(
-            i, 
-            now(), 
-            last_hash,
-            0, 
-            String::from("Another block"),
-            difficulty
-        );
-    
-        block.mine();   
-        println!("Mined another block {:?}", block);
+    let mut blockchain = Blockchain::new();
 
-        last_hash = block.hash.clone();
+    blockchain.update_with_block(genesis_block).expect("Failed to add genesis block");
 
-        blockchain.blocks.push(block);
+    let mut block = Block::new(1, now(), last_hash, vec![
+        Transaction {
+            inputs: vec![ ],
+            outputs: vec![
+                transaction::Output {
+                    to_addr: "Chris".to_owned(),
+                    value: 536,
+                },
+            ],
+        },
+        Transaction {
+            inputs: vec![
+                blockchain.blocks[0].transactions[0].outputs[0].clone(),
+            ],
+            outputs: vec![
+                transaction::Output {
+                    to_addr: "Alice".to_owned(),
+                    value: 360,
+                },
+                transaction::Output {
+                    to_addr: "Bob".to_owned(),
+                    value: 12,
+                },
+            ],
+        },
+    ], difficulty);
 
-        println!("Verify: {}", blockchain.verify());
-    }
+    block.mine();
+
+    println!("Mined block {:?}", &block);
+
+    last_hash = block.hash.clone();
+
+    blockchain.update_with_block(block).expect("Failed to add block");
 }
